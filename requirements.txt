@@ -1,0 +1,5 @@
+colorama
+nmap-python
+pysnmp
+ipaddress
+netflow_collector
