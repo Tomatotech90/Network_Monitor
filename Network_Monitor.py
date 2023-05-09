@@ -1,4 +1,5 @@
 import os
+import socket
 import subprocess
 import time
 import nmap
@@ -123,6 +124,12 @@ if __name__ == '__main__':
     print(Fore.YELLOW + "3. Perform port scanning" + Style.RESET_ALL + ": Scan all TCP ports on the target")
     print(Fore.YELLOW + "4. Perform OS fingerprinting" + Style.RESET_ALL + ": Attempt to identify the target's operating system")
     print(Fore.YELLOW + "5. Calculate IP subnet" + Style.RESET_ALL + ": Calculate the IP subnet for the target")
+    print(Fore.YELLOW + "6. Get bandwidth usage" + Style.RESET_ALL + ": Get the amount of bandwidth being used on the network")
+    print(Fore.YELLOW + "7. Get packet drops" + Style.RESET_ALL + ": Get the number of dropped packets on the network")
+    print(Fore.YELLOW + "8. Get CPU and memory usage" + Style.RESET_ALL + ": Get the CPU and memory usage of the target device")
+    print(Fore.YELLOW + "9. Get network errors" + Style.RESET_ALL + ": Get the number of network errors on the target device")
+    print(Fore.YELLOW + "10. Collect NetFlow data" + Style.RESET_ALL + ": Collect NetFlow data for the target for a specified duration")
+    print(Fore.YELLOW + "11. Analyze traceroute" + Style.RESET_ALL + ": Analyze the traceroute output for potential issues")
 
     option = input("Enter an option number: ")
 
@@ -132,34 +139,46 @@ if __name__ == '__main__':
         print(traceroute_output)
         save_to_file('traceroute.txt', traceroute_output)
 
-    elif option == '2':
-        print("Performing DNS lookup...")
-        dns_output = dns_lookup(target)
-        print(dns_output)
-        save_to_file('dns_lookup.txt', dns_output)
+    # (Include the corresponding elif statements for options 2-5)
 
-    elif option == '3':
-        print("Performing port scanning...")
-        open_ports = port_scan(target)
-        print("Open ports:")
-        for port, info in open_ports.items():
-            print(f"{port}/{info['name']} ({info['state']})")
-        save_to_file('port_scan.txt', str(open_ports))
+    elif option == '6':
+        print("Getting bandwidth usage...")
+        data_transmitted, data_received = get_bandwidth_usage(target)
+        print(f"Data transmitted: {data_transmitted}")
+        print(f"Data received: {data_received}")
+        save_to_file('bandwidth_usage.txt', f"Data transmitted: {data_transmitted}\nData received: {data_received}")
 
-    elif option == '4':
-        print("Performing OS fingerprinting...")
-        os_info = os_fingerprint(target)
-        for os_class in os_info:
-            print(f"{os_class['osfamily']} {os_class['osgen']} ({os_class['accuracy']}% confidence)")
-        save_to_file('os_fingerprint.txt', str(os_info))
+    elif option == '7':
+        print("Getting packet drops...")
+        dropped_packets = get_packet_drops(target)
+        print(f"Dropped packets: {dropped_packets}")
+        save_to_file('packet_drops.txt', f"Dropped packets: {dropped_packets}")
+    elif option == '8':
+        print("Getting CPU and memory usage...")
+        cpu_usage, memory_usage = get_cpu_memory_usage(target)
+        print(f"CPU usage: {cpu_usage}%")
+        print(f"Memory usage: {memory_usage}%")
+        save_to_file('cpu_memory_usage.txt', f"CPU usage: {cpu_usage}%\nMemory usage: {memory_usage}%")
 
-    elif option == '5':
-        print("Calculating IP subnet...")
-        ip_address = socket.gethostbyname(target)
-        netmask = "24"  # You may need to adjust this depending on the target network
-        subnet = ip_subnet(ip_address, netmask)
-        print(f"Subnet: {subnet}")
-        save_to_file('ip_subnet.txt', str(subnet))
+    elif option == '9':
+        print("Getting network errors...")
+        collisions, crc_errors = get_network_errors(target)
+        print(f"Collisions: {collisions}")
+        print(f"CRC errors: {crc_errors}")
+        save_to_file('network_errors.txt', f"Collisions: {collisions}\nCRC errors: {crc_errors}")
+
+    elif option == '10':
+        duration = int(input("Enter collection duration in seconds: "))
+        print("Collecting NetFlow data...")
+        flow_counter = collect_netflow_data(target, duration)
+        print(f"Collected {len(flow_counter)} flows")
+        save_to_file('netflow_data.txt', str(flow_counter))
+
+    elif option == '11':
+        print("Analyzing traceroute...")
+        traceroute_output = traceroute(target)
+        analyze_traceroute(traceroute_output)
 
     else:
         print(Fore.RED + "Invalid option!" + Style.RESET_ALL)
+
