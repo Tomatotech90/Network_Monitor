@@ -21,7 +21,7 @@ def snmp_get(target, oid):
                CommunityData('public'),
                UdpTransportTarget((target, 161)),
                ContextData(),
-               ObjectType(ObjectIdentity(oid)))
+               ObjectType(ObjectIdentity(oid))), None
     )
 
     if error_indication:
@@ -72,48 +72,68 @@ def collect_netflow_data(netflow_target, duration):
 def analyze_netflow_data(flow_counter):
     top_talkers = flow_counter.most_common(5)
     return top_talkers
-  
-  # New function: Traceroute
+
+
 def traceroute(target):
     command = ['traceroute', target]
-    traceroute_output = subprocess.check_output(command).decode('utf-8')
+    try:
+        traceroute_output = subprocess.check_output(command).decode('utf-8')
+    except subprocess.CalledProcessError as e:
+        print(f"Error running traceroute: {str(e)}")
+        traceroute_output = ""
     return traceroute_output
 
-# New function: Analyze traceroute output
+
 def analyze_traceroute(traceroute_output):
     lines = traceroute_output.split('\n')
     for line in lines:
         if "!" in line:
             print(f"Possible network issue: {line}")
 
-# New function: Perform a DNS lookup
+
 def dns_lookup(target):
     command = ['nslookup', target]
-    dns_output = subprocess.check_output(command).decode('utf-8')
+    try:
+        dns_output = subprocess.check_output(command).decode('utf-8')
+    except subprocess.CalledProcessError as e:
+        print(f"Error running nslookup: {str(e)}")
+        dns_output = ""
     return dns_output
-  
-  # New function: Port scanning
+
+
 def port_scan(target):
     nm = nmap.PortScanner()
-    nm.scan(target, arguments='-p1-65535')
+    try:
+        nm.scan(target, arguments='-p1-65535')
+    except nmap.PortScannerError as e:
+        print(f"Error scanning ports: {str(e)}")
+        return None
     return nm[target]['tcp']
 
-# New function: OS Fingerprinting
+
 def os_fingerprint(target):
     nm = nmap.PortScanner()
-    nm.scan(target, arguments='-O')
+    try:
+        nm.scan(target, arguments='-O')
+    except nmap.PortScannerError as e:
+        print(f"Error performing OS fingerprint: {str(e)}")
+        return None
     return nm[target]['osclass']
 
-# New function: IP subnet calculation
+
 def ip_subnet(ip_address, netmask):
-    subnet = ipaddress.IPv4Network(f"{ip_address}/{netmask}", strict=False)
+    try:
+        subnet = ipaddress.IPv4Network(f"{ip_address}/{netmask}", strict=False)
+    except ipaddress.AddressValueError as e:
+        print(f"Error calculating subnet: {str(e)}")
+        return None
     return subnet
 
-  
 
 def save_to_file(filename, content):
     with open(filename, 'w') as file:
         file.write(content)
+
 
 if __name__ == '__main__':
     target = input("Enter target IP or website: ")
